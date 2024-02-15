@@ -3,12 +3,17 @@
 namespace App\Models;
 
 use App\Http\Helpers\FileHelper;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+
+use Illuminate\Support\Facades\Log;
 
 class Account extends Model
 {
@@ -29,29 +34,61 @@ class Account extends Model
     protected $guarded = ['id'];
 
     /**
-     * Returns the user who owns this account.
+     * Returns all users who use this account.
      *
-     * @return BelongsTo
+     * @return BelongsToMany
+     */
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'account_user')->withPivot('id', 'account_title');
+    }
+
+    /**
+     * Returns the authentificated user of this account
+     *
+     * @return BelongsToMany
      */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->users()->wherePivot('user_id', Auth::user()->id);
     }
+
+    /**
+     * Returns the authentificated user if the user is using this account
+     *
+     * @return BelongsToMany
+     * The retured user,
+     * returns null if the user is not using this account
+     */
+    // public function accountUser()
+    // {
+    //     return $this->users()->wherePivot('user_id', Auth::user()->id);
+    // }
 
     /**
      * Gets all financial operations belonging to this account.
      *
-     * @return HasMany
+     * @return HasManyThrough
      */
     public function operations()
     {
-        return $this->hasMany(FinancialOperation::class);
+        return $this->hasManyThrough(FinancialOperation::class, AccountUser::class);
+    }
+
+    /**
+     * Gets all SAP operations belonging to this account.
+     *
+     * @return HasMany
+     */
+    public function sapOperations()
+    {
+        return $this->hasMany(SapOperation::class,'operation_type_id');
     }
 
     /**
      * Get all SAP reports associated with this account.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function sapReports()
     {
@@ -89,10 +126,10 @@ class Account extends Model
      */
     public function getBalance()
     {
-        $incomes = $this->operations()->incomes()->sum('sum');
-        $expenses = $this->operations()->expenses()->sum('sum');
+        $incomes = -$this->sapOperations()->where('sum','<',0)->sum('sum');
+        $expenses = -$this->sapOperations()->where('sum','>',0)->sum('sum');
 
-        return round($incomes - $expenses, 3);
+        return round($incomes + $expenses, 3);
     }
 
     /**
@@ -103,11 +140,35 @@ class Account extends Model
      * earliest date in the interval
      * @param Carbon $to
      * latest date in the interval
-     * @return HasMany the result query
+     * @return HasManyThrough the result query
      */
     public function operationsBetween(Carbon $from, Carbon $to)
     {
         return $this->operations()->whereBetween('date', [$from, $to]);
+    }
+
+    /**
+     * Builds a query requesting financial operations
+     * which belong to this account and to the specified user
+     * and whose date is in the specified interval.
+     *
+     * @param User $user
+     * specified user
+     * @param Carbon $from
+     * earliest date in the interval
+     * @param Carbon $to
+     * latest date in the interval
+     * @return HasManyThrough the result query
+     */
+    public function sapOperationsBetween(Carbon $from, Carbon $to){
+        return $this->sapOperations()->where('account_sap_id', $this->sap_id)->whereBetween('date', [$from, $to]);
+    }
+
+    public function userOperationsBetween(User $user, Carbon $from, Carbon $to){
+        $userId = $user->id;
+        $userWithPivot = $this->users()->where('users.id', '=', $userId)->first();
+        $accountUserId = $userWithPivot->pivot->id;
+        return $this->operations()->where('account_user_id', $accountUserId)->whereBetween('date', [$from, $to]);
     }
 
     /**

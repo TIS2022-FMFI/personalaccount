@@ -18,6 +18,7 @@ use App\Http\Controllers\SapReports\ReportDetailController;
 use App\Http\Controllers\SapReports\ReportsOverviewController;
 use App\Http\Controllers\SapReports\UploadReportController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ExcelImportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -136,5 +137,26 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
 
         Route::delete('/sap-reports/{report}', [DeleteReportController::class, 'delete'])
             ->middleware('can:delete,report');
+
+        Route::post('/accounts/{account}/excel-upload', [ExcelImportController::class, 'upload']);
+
     });
+
+
+        Route::get('/user/{user}/accounts', [AccountsOverviewController::class, 'admin_user_show']);
+        Route::get('/overview', [AccountsOverviewController::class, 'admin_show'])
+            ->name('admin_home');
+        Route::get('/user/{user}/accounts/{account}/operations', [OperationsOverviewController::class, 'admin_user_show']);
+        Route::get('/overview/accounts/{account}/operations', [OperationsOverviewController::class, 'admin_show']);
+        Route::middleware(['ajax', 'jsonify'])->group(function () {
+        Route::post('/user/{user}/accounts/{account}/operations', [CreateOperationController::class, 'createAdmin']);
+        Route::post('/user/{user}/accounts/',[CreateAccountController::class,'createAdmin']);
+        Route::post('/user/{user}/operations/{lending}/repayment', [CreateOperationController::class, 'createRepaymentAdmin']);
+
+
+    });
+
+
+
+
 });

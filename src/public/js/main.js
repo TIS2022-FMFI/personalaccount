@@ -52,7 +52,7 @@ $(document).ready(function(){
     // Create first user form -->
     $("#first-user-form").on("submit", function(e) {
         e.preventDefault();
-        
+
         let email = $("#first-user-email").val();
         let csrf = $("#first-user-button").data("csrf");
 
@@ -67,14 +67,14 @@ $(document).ready(function(){
             window.location.href = root + '/login';
         }).fail(function(response) {
             $.fn.createFirstUserClearForm();
-
+            console.log(response);
             if (typeof response.responseJSON != 'undefined') {
                 if (response.status === 422) {
                     let errors = response.responseJSON.errors;
 
                     if (typeof errors.email != 'undefined') {
                         $("#first-user-email").css("border-color", "red");
-    
+
                         errors.email.forEach(e => {
                             $("#first-user-email-errors").append("<p>" + e + "</p>");
                         });
@@ -94,7 +94,7 @@ $(document).ready(function(){
         })
     });
 
-    $.fn.createFirstUserClearForm = function(isDone = false){ 
+    $.fn.createFirstUserClearForm = function(isDone = false){
         if (isDone) {
             $("#first-user-email").val("");
         }
@@ -103,7 +103,7 @@ $(document).ready(function(){
         $("#first-user-email-errors").empty();
     }
     // <-- Create first user form
-    
+
     // Create user form -->
     $(".create-user").click(function() {
         $("#create-user-modal").css("display", "flex");
@@ -133,6 +133,7 @@ $(document).ready(function(){
 
             $.fn.createUserClearForm(true);
         }).fail(function(response) {
+            console.log(response);
             $.fn.createUserClearForm();
 
             if (typeof response.responseJSON != 'undefined') {
@@ -152,7 +153,7 @@ $(document).ready(function(){
                         title: response.responseJSON.displayMessage
                     })
                 }
-            }else{       
+            }else{
                 Toast.fire({
                     icon: 'error',
                     title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
@@ -161,7 +162,7 @@ $(document).ready(function(){
         })
     });
 
-    $.fn.createUserClearForm = function(isDone = false){ 
+    $.fn.createUserClearForm = function(isDone = false){
         if (isDone) {
             $("#create-user-email").val("");
         }
@@ -213,15 +214,15 @@ $(document).ready(function(){
 
                     if (typeof errors.old_password != 'undefined') {
                         $("#change-pass-old").css("border-color", "red");
-    
+
                         errors.old_password.forEach(e => {
                             $("#change-pass-old-errors").append("<p>" + e + "</p>");
                         });
                     }
-    
+
                     if (typeof errors.new_password != 'undefined') {
                         $("#change-pass-new1").css("border-color", "red");
-    
+
                         errors.new_password.forEach(e => {
                             $("#change-pass-new1-errors").append("<p>" + e + "</p>");
                         });
@@ -232,7 +233,7 @@ $(document).ready(function(){
                         title: response.responseJSON.displayMessage
                     })
                 }
-            }else{       
+            }else{
                 Toast.fire({
                     icon: 'error',
                     title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
@@ -241,7 +242,7 @@ $(document).ready(function(){
         })
     });
 
-    $.fn.changePassClearForm = function(isDone = false){ 
+    $.fn.changePassClearForm = function(isDone = false){
         if (isDone) {
             $("#change-pass-old").val("");
             $("#change-pass-new1").val("");
@@ -287,10 +288,10 @@ $(document).ready(function(){
                 if (response.status === 422) {
                     if (typeof response.responseJSON != 'undefined') {
                         let errors = response.responseJSON.errors;
-        
+
                         if (typeof errors.email != 'undefined') {
                             $("#forgot-pass-email").css("border-color", "red");
-        
+
                             errors.email.forEach(e => {
                                 $("#forgot-pass-email-errors").append("<p>" + e + "</p>");
                             });
@@ -302,7 +303,7 @@ $(document).ready(function(){
                         title: response.responseJSON.displayMessage
                     })
                 }
-            }else{       
+            }else{
                 Toast.fire({
                     icon: 'error',
                     title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
@@ -311,7 +312,7 @@ $(document).ready(function(){
         })
     });
 
-    $.fn.forgotPassClearForm = function(isDone = false){ 
+    $.fn.forgotPassClearForm = function(isDone = false){
         if (isDone) {
             $("#forgot-pass-email").val("");
         }
@@ -361,19 +362,26 @@ $(document).ready(function(){
         var account_id = $(this).data("id");
         window.location.href = root + '/accounts/'+account_id+'/operations';
     });
-  
+
     // Create financial account form -->
     $("#create-account-form").on("submit", function(e) {
         e.preventDefault();
-
         $("#create-account-button").attr("disabled", true);
 
         let title = $("#add-account-name").val();
         let sapId = $("#add-account-sap-id").val();
         let csrf = $("#create-account-button").data("csrf");
+        let user_id = $(this).data("user-id");
+        let isAdmin = $('body').data('is-admin');
+        let urlPath = isAdmin ? "/user/"+ user_id+ "/accounts/" : "/accounts/";
+        let url = root + urlPath;
+        console.log(url);
+        console.log(isAdmin);
+        console.log(urlPath);
+        console.log($('body').data('is-admin'));
 
         $.ajax({
-            url: root + "/accounts",
+            url: url,
             type: "POST",
             dataType: "json",
             data: {
@@ -391,6 +399,7 @@ $(document).ready(function(){
 
             $.fn.createAccountClearForm(true);
         }).fail(function(response) {
+            console.log(response);
             $.fn.createAccountClearForm();
             if (typeof response.responseJSON != 'undefined'){
                 if (response.status === 422) {
@@ -409,7 +418,7 @@ $(document).ready(function(){
                             $("#add-account-sap-id-errors").append("<p>" + e + "</p>");
                         });
                     }
-                    
+
                 } else if (typeof response.responseJSON.displayMessage != 'undefined') {
                     Toast.fire({
                         icon: 'error',
@@ -417,6 +426,7 @@ $(document).ready(function(){
                     })
                 }
             }else{
+                console.log("Tu som Tu som1")
                 Toast.fire({
                     icon: 'error',
                     title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
@@ -427,7 +437,7 @@ $(document).ready(function(){
     });
 
 
-    $.fn.createAccountClearForm = function(isDone = false){ 
+    $.fn.createAccountClearForm = function(isDone = false){
 
         if (isDone) {
             $("#add-account-name").val("");
@@ -450,9 +460,9 @@ $(document).ready(function(){
 
     $("#edit-account-form").on("submit", function(e) {
         e.preventDefault();
-        
+
         let account_id =  $(this).data("id");
-    
+
         let title = $("#edit-account-name").val();
         let sapId = $("#edit-account-sap-id").val();
 
@@ -477,6 +487,7 @@ $(document).ready(function(){
 
             $.fn.editAccountClearForm(true);
         }).fail(function(response) {
+            console.log(response);
             $.fn.editAccountClearForm();
             if (typeof response.responseJSON != 'undefined'){
                 if (response.status === 422) {
@@ -495,16 +506,18 @@ $(document).ready(function(){
                             $("#edit-account-sap-id-errors").append("<p>" + e + "</p>");
                         });
                     }
-                    
+
                 } else if (typeof response.responseJSON.displayMessage != 'undefined') {
                     Toast.fire({
                         icon: 'error',
                         title: response.responseJSON.displayMessage
                     })
                 }
-            }else{    
+            }else{
+
                 Toast.fire({
                     icon: 'error',
+
                     title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
                 })
             }
@@ -513,7 +526,7 @@ $(document).ready(function(){
     });
 
 
-    $.fn.editAccountClearForm = function(isDone = false){ 
+    $.fn.editAccountClearForm = function(isDone = false){
 
         if (isDone) {
             $("#edit-account-name").val("");
@@ -557,6 +570,7 @@ $(document).ready(function(){
 
             $.fn.createAccountClearForm(true);
         }).fail(function(response) {
+            console.log(response);
             $.fn.createAccountClearForm();
             if (typeof response.responseJSON != 'undefined'){
                 if (response.status === 422) {
@@ -565,7 +579,7 @@ $(document).ready(function(){
                         title: response.responseJSON.displayMessage
                     })
                 }
-            }else{    
+            }else{
                 Toast.fire({
                     icon: 'error',
                     title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
@@ -582,7 +596,7 @@ $(document).ready(function(){
     // --> SAP reports
 
     $("#reports-filter").click(function(){
-        
+
         let account_id = $(this).data("account-id");
         let date_from = $('#filter-reports-from').val();
         let date_to = $('#filter-reports-to').val();
@@ -607,39 +621,106 @@ $(document).ready(function(){
     // --> SAP reports forms
 
     // --> add SAP report form
+    $("#add-excel-report").click(function(){
+        console.log("Button clicked"); // For debugging
+        let account_id = $(this).data("account-id");
+        $("#add-excel-modal").css("display","flex");
+        $("#add-excel-modal > .modal > #create-excel-form").data("account-id", account_id);
+    })
+
+    $("#create-excel-form").on("submit", function(e) {
+        e.preventDefault();
+
+        $("#create-excel-button").attr("disabled", true);
+
+        let account_id =  $(this).data("account-id")
+        console.log("Submitting for Account ID:", account_id); // Add this line to debug
+
+
+        let csrf = $("#create-excel-button").data("csrf");
+        var fileUpload = $("#excel-file").get(0);
+        var files = fileUpload.files;
+        var fileData = new FormData();
+        fileData.append('excel_file', files[0] ?? '');
+        fileData.append('_token', csrf);
+        console.log(fileData);
+        $.ajax({
+            url: root + "/accounts/" + account_id + '/excel-upload',
+            type: "POST",
+            contentType: false,
+            processData: false,
+            dataType: "json",
+            data: fileData
+        }).done(function(response) {
+            Toast.fire({
+                icon: 'success',
+                title: response.message
+            });
+            location.reload();
+            $(".modal-box").css("display", "none");
+
+            $.fn.createReportClearForm(true);
+        }).fail(function(response) {
+            $("#upload-button").attr("disabled", false);
+            if (response.responseJSON && response.responseJSON.errors) {
+                let errors = response.responseJSON.errors;
+                for (let key in errors) {
+                    if (errors.hasOwnProperty(key)) {
+                        errors[key].forEach(e => {
+                            $("#upload-errors").append("<p>" + e + "</p>");
+                        });
+                    }
+                }
+            } else {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'An error occurred. Please try again later.'
+                });
+            }
+        });
+    });
+
+
     $("#add-sap-report").click(function(){
         let account_id = $(this).data("account-id");
         $("#add-report-modal").css("display","flex");
         $("#add-report-modal > .modal > #create-report-form").data("account-id", account_id);
     })
 
+
+
+
     $("#create-report-form").on("submit", function(e){
         e.preventDefault();
 
         $("#create-report-button").attr("disabled", true);
 
-        let account_id =  $(this).data("account-id");
+        let account_id =  $(this).data("account-id")
+        console.log("Sdsdsubmitting for Account ID:", account_id); // Add this line to debug
         let csrf = $("#create-report-button").data("csrf");
 
-        var fileUpload = $("#report-file").get(0);  
-        var files = fileUpload.files;  
-        var fileData = new FormData(); 
-        fileData.append('sap_report', files[0] ?? '');  
+        var fileUpload = $("#report-file").get(0);
+        var files = fileUpload.files;
+        var fileData = new FormData();
+        fileData.append('sap_report', files[0] ?? '');
 
         fileData.append('_token', csrf);
-        
+
         $.ajax({
             url: root + "/accounts/" + account_id + '/sap-reports',
             type: "POST",
-            contentType: false, // Not to set any content header  
-            processData: false, // Not to process data 
+            contentType: false, // Not to set any content header
+            processData: false, // Not to process data
             dataType: "json",
             data: fileData
+
         }).done(function(response) {
             Toast.fire({
                 icon: 'success',
                 title: response.displayMessage
             })
+
+
             location.reload();
 
             $(".modal-box").css("display", "none");
@@ -658,14 +739,14 @@ $(document).ready(function(){
                             $("#add-sap-report-errors").append("<p>" + e + "</p>");
                         });
                     }
-                    
+
                 } else if (typeof response.responseJSON.displayMessage != 'undefined') {
                     Toast.fire({
                         icon: 'error',
                         title: response.responseJSON.displayMessage
                     })
                 }
-            }else{   
+            }else{
                 Toast.fire({
                     icon: 'error',
                     title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
@@ -675,7 +756,7 @@ $(document).ready(function(){
         })
     });
 
-    $.fn.createReportClearForm = function(isDone = false){ 
+    $.fn.createReportClearForm = function(isDone = false){
 
         if (isDone) {
             $("#operation-file").val("");
@@ -730,7 +811,7 @@ $(document).ready(function(){
                         title: response.responseJSON.displayMessage
                     })
                 }
-            }else{   
+            }else{
                 Toast.fire({
                     icon: 'error',
                     title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
@@ -745,7 +826,7 @@ $(document).ready(function(){
     // <-- SAP reports
 
     // Financial accounts filter operations-->
-    
+
     $("#filter-operations").click(function(){
         let account_id = $(this).data("account-id");
         let date_from = $('#filter-operations-from').val();
@@ -783,7 +864,7 @@ $(document).ready(function(){
     // Financial operations export -->
 
     $("#operations-export").click(function(){
-        
+
         let account_id = $(this).data("account-id");
         let date_from = $('#filter-operations-from').val();
         let date_to = $('#filter-operations-to').val();
@@ -845,7 +926,7 @@ $(document).ready(function(){
             mm = date.substring(5,7);
             yyyy = date.substring(0,4);
             $("#operation_date").html(dd+"."+mm+"."+yyyy);
-            
+
             let lending_type = response.operation.operation_type.lending
             let repayment_type = response.operation.operation_type.repayment
             if (lending_type == 1){
@@ -864,7 +945,7 @@ $(document).ready(function(){
 
                         $("#operation_date_until_label").css("visibility", "visible")
                         $("#operation_date_until").css("visibility", "visible");
-                        
+
                     }else{
                         $("#operation_date_until").css("visibility", "hidden");
                         $("#operation_date_until_label").css("visibility", "hidden");
@@ -879,7 +960,7 @@ $(document).ready(function(){
                         ryyyy = return_date.substring(0,4);
                         $("#operation_date_until").html(rdd+"."+rmm+"."+ryyyy);
                         $("#operation_date_until").css("visibility", "visible");
-                        
+
                     }else{
                         $("#operation_date_until").css("visibility", "hidden");
                         $("#operation_date_until_label").css("visibility", "hidden");
@@ -902,7 +983,7 @@ $(document).ready(function(){
             }
 
             $("#operation-attachment-button").attr("onclick", 'location.href="'+ root +'/operations/'+ operation_id +'/attachment"')
-            
+
             if (response.operation.attachment == null){
                 $("#operation-attachment-button").css("display", "none");
             }else{
@@ -917,7 +998,7 @@ $(document).ready(function(){
                         title: response.responseJSON.displayMessage
                     })
                 }
-            }else{   
+            }else{
                 Toast.fire({
                     icon: 'error',
                     title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
@@ -928,7 +1009,6 @@ $(document).ready(function(){
 
     $("#show-repayment-button").click(function(){
         let operation_id = $(this).data("repay-id");
-
         $(".modal-box").css("display", "none");
         let csrf = $(this).data("csrf");
 
@@ -963,7 +1043,7 @@ $(document).ready(function(){
             mm = date.substring(5,7);
             yyyy = date.substring(0,4);
             $("#operation_date").html(dd+"."+mm+"."+yyyy);
-            
+
             let repayment_type = response.operation.operation_type.repayment
 
             $("#previous-lending-button").css("display", "none");
@@ -988,7 +1068,7 @@ $(document).ready(function(){
             }
 
             $("#operation-attachment-button").attr("onclick", 'location.href="'+ root +'/operations/'+ operation_id +'/attachment"')
-            
+
             if (response.operation.attachment == null){
                 $("#operation-attachment-button").css("display", "none");
             }else{
@@ -1003,7 +1083,7 @@ $(document).ready(function(){
                         title: response.responseJSON.displayMessage
                     })
                 }
-            }else{   
+            }else{
                 Toast.fire({
                     icon: 'error',
                     title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
@@ -1049,7 +1129,7 @@ $(document).ready(function(){
             mm = date.substring(5,7);
             yyyy = date.substring(0,4);
             $("#operation_date").html(dd+"."+mm+"."+yyyy);
-            
+
             let repayment_type = response.operation.operation_type.repayment
 
             $("#previous-lending-button").css("display", "none");
@@ -1080,10 +1160,10 @@ $(document).ready(function(){
 
             }
 
-            
+
 
             $("#operation-attachment-button").attr("onclick", 'location.href="'+ root +'/operations/'+ operation_id +'/attachment"')
-            
+
             if (response.operation.attachment == null){
                 $("#operation-attachment-button").css("display", "none");
             }else{
@@ -1098,7 +1178,7 @@ $(document).ready(function(){
                         title: response.responseJSON.displayMessage
                     })
                 }
-            }else{   
+            }else{
                 Toast.fire({
                     icon: 'error',
                     title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
@@ -1144,6 +1224,7 @@ $(document).ready(function(){
             $(".modal-box").css("display", "none");
 
         }).fail(function(response) {
+            console.log(response);
             if (typeof response.responseJSON != 'undefined'){
                 if (response.status === 422) {
                     Toast.fire({
@@ -1151,7 +1232,7 @@ $(document).ready(function(){
                         title: response.responseJSON.displayMessage
                     })
                 }
-            }else{   
+            }else{
                 Toast.fire({
                     icon: 'error',
                     title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
@@ -1188,7 +1269,7 @@ $(document).ready(function(){
             dataType: "json",
             data: {
                 '_token': csrf,
-                'checked': operation_checked    
+                'checked': operation_checked
             }
         }).done(function(response) {
             Toast.fire({
@@ -1206,7 +1287,7 @@ $(document).ready(function(){
             })
 
         })
-        
+
     });
     // <-- Check/Uncheck operation
 
@@ -1263,8 +1344,8 @@ $(document).ready(function(){
             $("#add-operation-title-errors").css("border-color", "var(--primary)");
             $("#add-operation-expected-date").css("border-color", "var(--primary)");
             $("#operation_choice").css("border-color", "var(--primary)");
-    
-    
+
+
             $("#operation-file").empty();
             $("#add-operation-to").empty();
             $("#add-operation-type").empty();
@@ -1295,14 +1376,23 @@ $(document).ready(function(){
         $(".add-operation-choice").show();
         $(".lending_detail_div").css("display", "none")
         $("#lending_detail").css("display", "none")
-        $("#lending-choice").val("default_opt");  
+        $("#lending-choice").val("default_opt");
     }
 
     // --> Create operation form
 
     $("#create_operation").click(function(){
         let account_id = $(this).data("account-id");
+     //   let user_id = $(this).data("user-id");
         let csrf = $(this).data("csrf");
+        let isAdmin = false;
+       // let isAdmin = $('body').data('is-admin');
+        let urlPath = isAdmin ? "/user/"+ user_id+ "/accounts/" : "/accounts/";
+        let url = root + urlPath + account_id + "/operations/create";
+     //   console.log(url);
+     //   console.log(isAdmin);
+      //  console.log(urlPath);
+      //  console.log($('body').data('is-admin'));
         $("#create-operation-form").data("account-id", account_id);
         defaultCreateOperationFormFields();
         $(".lending_detail_div").css("display", "none")
@@ -1312,7 +1402,7 @@ $(document).ready(function(){
         $("#lending-choice").empty();
 
         $.ajax({
-            url: root + "/accounts/" + account_id + "/operations/create",
+            url: url,
             type: "GET",
             dataType: "json",
             data: {
@@ -1320,13 +1410,14 @@ $(document).ready(function(){
             },
             beforeSend: function() {
                 $("#loader-modal").css("display", "flex");
-                $("#create-operation-modal").css("display", "none");  
+                $("#create-operation-modal").css("display", "none");
             },
             complete: function() {
                 $("#loader-modal").css("display", "none");
-                $("#create-operation-modal").css("display", "flex");  
+                $("#create-operation-modal").css("display", "flex");
             }
         }).done(function(response) {
+            //console.log(response);
             $("#operation_choice").append($('<option>', {
                 value: "default_opt",
                 text: 'Vyberte typ operácie'
@@ -1339,7 +1430,7 @@ $(document).ready(function(){
                     class: type,
                     value: choice.id,
                     text: choice.name
-                }));                
+                }));
             })
 
             $("#lending-choice").append($('<option>', {
@@ -1356,6 +1447,8 @@ $(document).ready(function(){
                     }))
                 })
             }
+        }).fail(function(response){
+            console.log(response);
         })
 
     })
@@ -1363,9 +1456,18 @@ $(document).ready(function(){
     $("#create-operation-form").on("submit", function(e) {
         e.preventDefault();
         $("#create-operation-button").attr("disabled", true);
-        
+
         let csrf = $("#create-operation-button").data("csrf");
         let account_id = $(this).data("account-id");
+        let user_id = $(this).data("user-id");
+        let isAdmin = $('body').data('is-admin');
+        let urlPath = isAdmin ? "/user/"+ user_id+ "/accounts/" : "/accounts/";
+        let url = root + urlPath + account_id + "/operations/";
+
+        console.log(url);
+        console.log(isAdmin);
+        console.log(urlPath);
+        console.log($('body').data('is-admin'));
         let expense_income = $("input[name='operation_type']:checked").val();
         let operation_type_id = $("#operation_choice").val();
         let title = $("#add-operation-name").val();
@@ -1375,10 +1477,11 @@ $(document).ready(function(){
         let expected_date = $("#add-operation-expected-date").val();
         let lending_id = $("#lending-choice").val();
 
-        var fileUpload = $("#operation-file").get(0);  
-        var files = fileUpload.files;  
 
-        var fileData = new FormData(); 
+
+        var fileUpload = $("#operation-file").get(0);
+        var files = fileUpload.files;
+        var fileData = new FormData();
 
         fileData.append('_token', csrf);
         fileData.append('title', title);
@@ -1388,12 +1491,12 @@ $(document).ready(function(){
         fileData.append('subject', subject);
         fileData.append('sum', sum);
         if (files[0] != undefined){
-            fileData.append('attachment', files[0] ?? '');  
+            fileData.append('attachment', files[0] ?? '');
         }
 
         if ($('input[type=radio][name=operation_type]:checked').val() != 'loan') {
             $.ajax({
-                url: root + "/accounts/" + account_id + "/operations",
+                url: url,
                 type: "POST",
                 contentType: false,
                 processData: false,
@@ -1410,6 +1513,7 @@ $(document).ready(function(){
 
                 $.fn.createOperationClearForm(true);
             }).fail(function(response) {
+                console.log(response);
                 $.fn.createOperationClearForm();
                 if (typeof response.responseJSON != 'undefined'){
                     if (response.status === 422) {
@@ -1443,14 +1547,14 @@ $(document).ready(function(){
                             errors.subject.forEach(e => {
                                 $("#add-operation-subject-errors").append("<p>" + e + "</p>");
                             });
-                        }            
+                        }
                         if (typeof errors.sum != 'undefined') {
                             $("#add-operation-sum").css("border-color", "red");
 
                             errors.sum.forEach(e => {
                                 $("#add-operation-sum-errors").append("<p>" + e + "</p>");
                             });
-                        }                
+                        }
                         if (typeof errors.title != 'undefined') {
                             $("#add-operation-name").css("border-color", "red");
 
@@ -1458,14 +1562,14 @@ $(document).ready(function(){
                                 $("#add-operation-title-errors").append("<p>" + e + "</p>");
                             });
                         }
-                        
+
                     } else if (typeof response.responseJSON.displayMessage != 'undefined') {
                         Toast.fire({
                             icon: 'error',
                             title: response.responseJSON.displayMessage
                         })
                     }
-                }else{   
+                }else{
                     Toast.fire({
                         icon: 'error',
                         title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
@@ -1474,11 +1578,15 @@ $(document).ready(function(){
             })
         }else{
             let option = $("#lending-choice").val()
+            let user_id = $(this).data("user-id");
+            let isAdmin = $('body').data('is-admin');
+            let urlPath = isAdmin ? "/user/"+ user_id + "/operations/" + lending_id + "/repayment": "/operations/" + lending_id + "/repayment";
+            let url = root + urlPath;
             if(option != "default_opt"){
                 $("#create-operation-button").attr("disabled", false)
 
                 $.ajax({
-                    url: root + "/operations/" + lending_id + "/repayment",
+                    url: url,
                     type: "POST",
                     dataType: "json",
                     data: {
@@ -1511,7 +1619,7 @@ $(document).ready(function(){
                                 title: response.responseJSON.displayMessage
                             })
                         }
-                    }else{   
+                    }else{
                         Toast.fire({
                             icon: 'error',
                             title: 'Niečo sa pokazilo. Prosím, skúste to neskôr.'
@@ -1524,7 +1632,7 @@ $(document).ready(function(){
         }
     });
 
-    $.fn.createOperationClearForm = function(isDone = false){ 
+    $.fn.createOperationClearForm = function(isDone = false){
 
         if (isDone) {
             $("#operation-file").val("");
@@ -1591,11 +1699,11 @@ $(document).ready(function(){
             },
             beforeSend: function() {
                 $("#loader-modal").css("display", "flex");
-                $("#edit-operation-modal").css("display", "none");    
+                $("#edit-operation-modal").css("display", "none");
             },
             complete: function() {
                 $("#loader-modal").css("display", "none");
-                $("#edit-operation-modal").css("display", "flex");    
+                $("#edit-operation-modal").css("display", "flex");
             }
         }).done(function(response) {
 
@@ -1616,7 +1724,7 @@ $(document).ready(function(){
             $("#edit-operation-to").val(date);
             $(".add-operation-expected-date").css("display", "none");
             if (response.operation.operation_type.lending == 1) {
-                
+
                 $(".operation-file").css("display", "none");
                 if (response.operation.lending.expected_date_of_return != null){
                     let expected_date = response.operation.lending.expected_date_of_return.substring(0,10);
@@ -1627,9 +1735,12 @@ $(document).ready(function(){
                 $(".add-operation-expected-date").css("display", "flex");
 
 
-            } 
+            }
 
-        })
+        }).fail(
+            function (response){
+                console.log(response);
+            })
 
     })
 
@@ -1669,7 +1780,7 @@ $(document).ready(function(){
                     ldd = date.substring(8,10);
                     lmm = date.substring(5,7);
                     lyyyy = date.substring(0,4);
-        
+
                     $("#lending_operation_date_until").html(ldd+"."+lmm+"."+lyyyy);
                 }else{
                     $("#lending_operation_date_until_label").css('display', 'none')
@@ -1701,9 +1812,9 @@ $(document).ready(function(){
         let date = $("#edit-operation-to").val();
         let expected_date = $("#edit-operation-expected-date").val();
 
-        var fileUpload = $("#edit-operation-file").get(0);  
-        var files = fileUpload.files;  
-        var fileData = new FormData(); 
+        var fileUpload = $("#edit-operation-file").get(0);
+        var files = fileUpload.files;
+        var fileData = new FormData();
 
         fileData.append('title', title);
         fileData.append('date', date);
@@ -1711,7 +1822,7 @@ $(document).ready(function(){
         fileData.append('subject', subject);
         fileData.append('sum', sum);
         if (files[0] != undefined){
-            fileData.append('attachment', files[0] ?? '');  
+            fileData.append('attachment', files[0] ?? '');
         }
         fileData.append('_token', csrf);
         fileData.append('_method', 'PATCH');
@@ -1733,6 +1844,7 @@ $(document).ready(function(){
 
             $.fn.editOperationClearForm(true);
         }).fail(function(response) {
+            console.log(response);
             $.fn.editOperationClearForm();
             if (typeof response.responseJSON != 'undefined'){
                 if (response.status === 422) {
@@ -1767,14 +1879,14 @@ $(document).ready(function(){
                         errors.subject.forEach(e => {
                             $("#edit-operation-subject-errors").append("<p>" + e + "</p>");
                         });
-                    }            
+                    }
                     if (typeof errors.sum != 'undefined') {
                         $("#edit-operation-sum").css("border-color", "red");
 
                         errors.sum.forEach(e => {
                             $("#edit-operation-sum-errors").append("<p>" + e + "</p>");
                         });
-                    }                
+                    }
                     if (typeof errors.title != 'undefined') {
                         $("#edit-operation-name").css("border-color", "red");
 
@@ -1782,7 +1894,7 @@ $(document).ready(function(){
                             $("#edit-operation-title-errors").append("<p>" + e + "</p>");
                         });
                     }
-                    
+
                 } else if (typeof response.responseJSON.displayMessage != 'undefined') {
                     Toast.fire({
                         icon: 'error',
@@ -1799,7 +1911,7 @@ $(document).ready(function(){
 
     });
 
-    $.fn.editOperationClearForm = function(isDone = false){ 
+    $.fn.editOperationClearForm = function(isDone = false){
 
         if (isDone) {
             $("#operation-file").val("");
@@ -1861,10 +1973,13 @@ $(document).ready(function(){
         let date = $("#repay-lending-date").val();
         let csrf = $("#repay-lending-button").data("csrf");
         let operation_id = $(this).data("operation-id");
-
+        let user_id = $(this).data("user-id");
+        let isAdmin = $('body').data('is-admin');
+        let urlPath = isAdmin ? "/user/"+ user_id + "/operations/" + operation_id + "/repayment": "/operations/" + operation_id + "/repayment";
+        let url = root + urlPath;
 
         $.ajax({
-            url: root + "/operations/" + operation_id + "/repayment",
+            url: url,
             type: "POST",
             dataType: "json",
             data: {
@@ -1908,7 +2023,7 @@ $(document).ready(function(){
 
     });
 
-    $.fn.repaymentClearForm = function(isDone = false){ 
+    $.fn.repaymentClearForm = function(isDone = false){
         if (isDone) {
             $("#repayment-operation-date").val("");
         }
@@ -1942,13 +2057,13 @@ $(document).ready(function(){
                 $(".lending_opt").css("display","none")
                 $(".edit_lending_opt").css("display","none")
                 break;
-        } 
+        }
     }
 
     $(".operation_type").change(function(){
         updateSelectOptions($(this).val());
     });
-    
+
     // 3 -> lending to
     // 10 -> lending from
     function updateOperationForm(operation_category){
@@ -1986,4 +2101,34 @@ $(document).ready(function(){
     // <-- Financial operations forms
 
     // <-- Financial operations
+
+//admin
+$(".user").click(function(){
+    var user_id = $(this).data("id");
+    window.location.href = root + '/user/'+ user_id +'/accounts';
+});
+
+
+$(".overview_account").click(function(){
+    var user_id = $(this).data("user_id");
+    var account_id = $(this).data("id");
+    console.log(user_id,account_id);
+    window.location.href = root + '/overview/accounts/' +account_id+'/operations';
+});
+
+$(".account_admin").click(function(){
+    var user_id = $(this).data("user_id");
+    var account_id = $(this).data("id");
+    console.log(user_id,account_id);
+    window.location.href = root + '/user/'+ user_id + '/accounts/'+account_id+'/operations';
+});
+
+
 })
+
+function admin_user_overview(row) {
+    var user_id = row.getAttribute('data-id');
+    window.location.href = root + '/user/'+ user_id +'/accounts';
+}
+
+

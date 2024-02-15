@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\Account;
+use App\Models\AccountUser;
 use App\Models\OperationType;
-use Database\Seeders\AccountSeeder;
-use Database\Seeders\OperationTypeSeeder;
+//use Database\Seeders\AccountSeeder;
+//use Database\Seeders\OperationTypeSeeder;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,12 +20,12 @@ class FinancialOperationFactory extends Factory
      */
     public function definition()
     {
-        $accounts = Account::all('id');
+        $accounts_users = AccountUser::all('id');
         $operationTypes = OperationType::where('lending', '=', false)->get('id');
         $checked = fake()->boolean(30);
 
         return [
-            'account_id' => $accounts->random()['id'],
+            'account_user_id' => $accounts_users->random()['id'],
             'title' => fake()->text(20),
             'date' => fake()->date,
             'operation_type_id' => $operationTypes->random()['id'],
