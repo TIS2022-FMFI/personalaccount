@@ -10,6 +10,7 @@ class AccountPolicy
 {
     use HandlesAuthorization;
 
+
     /**
      * Determine whether a user can access an account.
      *
@@ -22,8 +23,9 @@ class AccountPolicy
      */
     public function view(User $user, Account $account)
     {
-        return $user->id === $account->user_id;
+        return $user->accounts->contains($account);
     }
+
 
     /**
      * Determine whether a user can update an account.
@@ -37,8 +39,9 @@ class AccountPolicy
      */
     public function update(User $user, Account $account)
     {
-        return $user->id === $account->user_id;
+        return $user->accounts->contains($account);
     }
+
 
     /**
      * Determine whether a user can delete an account.
@@ -52,6 +55,6 @@ class AccountPolicy
      */
     public function delete(User $user, Account $account)
     {
-        return $user->id === $account->user_id;
+        return $user->accounts->contains($account);
     }
 }
